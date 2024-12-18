@@ -1,0 +1,59 @@
+services:
+# logger:
+#   build:
+#     context: ./http-listener
+#     dockerfile: Dockerfile.http-listener
+#   expose:
+#     - "80"
+
+  openldap:
+    image: osixia/openldap
+    command: ["--copy-service","--loglevel","debug"]
+    ports:
+      - "1389:389"
+    volumes:
+      - ./config-ldap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/config-ldap.ldif
+    environment:
+      LDAP_TLS_VERIFY_CLIENT: try
+      LDAP_ADMIN_PASSWORD: admin123
+
+# openid:
+#   image: dexidp/dex
+#   ports:
+#     - "5556:5556"
+#   environment:
+#     DEX_ISSUER: "http://openid:5556/dex"
+#     DEX_LDAP_SERVER: "openldap:389"
+#   command: ["dex", "serve", "/etc/dex/minio-config.yaml"]
+#   volumes:
+#     - ./dex.yaml:/etc/dex/minio-config.yaml
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+      # audit logging
+#     MINIO_AUDIT_WEBHOOK_ENABLE: "on"
+#     MINIO_AUDIT_WEBHOOK_ENDPOINT: "http://logger"
+      # LDAP configuration
+      MINIO_IDENTITY_LDAP_SERVER_ADDR: "openldap:389"
+      MINIO_IDENTITY_LDAP_SERVER_INSECURE: on
+      MINIO_IDENTITY_LDAP_LOOKUP_BIND_DN: "cn=admin,dc=example,dc=org"
+      MINIO_IDENTITY_LDAP_LOOKUP_BIND_PASSWORD: "admin123"
+      MINIO_IDENTITY_LDAP_USER_DN_SEARCH_BASE_DN: "ou=users,dc=example,dc=org"
+      MINIO_IDENTITY_LDAP_USER_DN_SEARCH_FILTER: "(&(objectClass=inetOrgPerson)(cn=%s))"
+      MINIO_IDENTITY_LDAP_GROUP_SEARCH_FILTER: "(&(objectClass=groupOfNames)(member=%d))"
+      MINIO_IDENTITY_LDAP_GROUP_SEARCH_BASE_DN: ou=groups,dc=example,dc=org
+      # OpenID configuration
+      #MINIO_IDENTITY_OPENID_DISPLAY_NAME: "OpenID test server"
+      #MINIO_IDENTITY_OPENID_CONFIG_URL: "http://openid:5556/dex/.well-known/openid-configuration"
+      #MINIO_IDENTITY_OPENID_CLIENT_ID: "minio"
+      #MINIO_IDENTITY_OPENID_CLIENT_SECRET: "oidc-client-secret"
+      #MINIO_IDENTITY_OPENID_CLAIM_NAME: "groups"
+      #MINIO_IDENTITY_OPENID_SCOPES: "openid,groups,email,profile"
+      #MINIO_IDENTITY_OPENID_REDIRECT_URI: "http://localhost:9001/oauth_callback"
+    command: ["server","/data","--console-address",":9001"]

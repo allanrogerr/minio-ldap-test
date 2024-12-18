@@ -1,0 +1,17 @@
+# Use the official Golang image from the Docker Hub
+FROM golang:1.23
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY http-listener.go .
+
+# Build the Go app
+RUN go build -o main http-listener.go
+
+# Make port 80 available to the world outside this container
+EXPOSE 80
+
+# Run the executable
+CMD ["/app/main"]

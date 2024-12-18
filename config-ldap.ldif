@@ -1,0 +1,54 @@
+# Root
+# dn: dc=example,dc=org
+# objectClass: dcObject
+# objectClass: organization
+# o: Example
+# dc: example
+
+# Users
+dn: ou=users,dc=example,dc=org
+objectClass: organizationalUnit
+ou: users
+
+dn: cn=user1,ou=users,dc=example,dc=org
+objectClass: person
+objectClass: inetOrgPerson
+sn: doe
+cn: user1
+mail: user1@example.org
+userpassword: pwd1
+
+dn: cn=user2,ou=users,dc=example,dc=org
+objectClass: person
+objectClass: inetOrgPerson
+sn: doe
+cn: user2
+mail: user2@example.org
+userpassword: pwd2
+
+# Group definitions.
+dn: ou=groups,dc=example,dc=org
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=admins,ou=groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: admins
+member: cn=user1,ou=users,dc=example,dc=org
+
+dn: cn=others,ou=groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: others
+member: cn=user1,ou=users,dc=example,dc=org
+member: cn=user2,ou=users,dc=example,dc=org
+
+dn: cn=consoleAdmin,ou=groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: consoleAdmin
+member: cn=user1,ou=users,dc=example,dc=org
+
+dn: cn=readonly,ou=groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: readonly
+member: cn=user1,ou=users,dc=example,dc=org
+member: cn=user2,ou=users,dc=example,dc=org
